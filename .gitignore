@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Env / local data
+.env
+*.sqlite
+.DS_Store
