@@ -23,6 +23,9 @@ export class Lesson {
   @Column({ type: 'int', default: 0 })
   order: number;
 
+  @Column({ type: 'int', nullable: true })
+  durationMinutes?: number;
+
   @Column()
   courseId: string;
 

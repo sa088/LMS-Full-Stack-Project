@@ -20,16 +20,6 @@ export class CoursesService {
   findAll() {
     return this.coursesRepository.find({
       relations: ['instructor', 'lessons'],
-      select: {
-        instructor: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
       order: { createdAt: 'DESC', lessons: { order: 'ASC' } },
     });
   }
@@ -38,16 +28,6 @@ export class CoursesService {
     const course = await this.coursesRepository.findOne({
       where: { id },
       relations: ['instructor', 'lessons'],
-      select: {
-        instructor: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
       order: { lessons: { order: 'ASC' } },
     });
 
@@ -57,6 +37,47 @@ export class CoursesService {
 
     return course;
   }
+
+  // findAll() {
+  //   return this.coursesRepository.find({
+  //     relations: ['instructor', 'lessons'],
+  //     select: {
+  //       instructor: {
+  //         id: true,
+  //         email: true,
+  //         name: true,
+  //         role: true,
+  //         createdAt: true,
+  //         updatedAt: true,
+  //       },
+  //     },
+  //     order: { createdAt: 'DESC', lessons: { order: 'ASC' } },
+  //   });
+  // }
+
+  // async findOne(id: string) {
+  //   const course = await this.coursesRepository.findOne({
+  //     where: { id },
+  //     relations: ['instructor', 'lessons'],
+  //     select: {
+  //       instructor: {
+  //         id: true,
+  //         email: true,
+  //         name: true,
+  //         role: true,
+  //         createdAt: true,
+  //         updatedAt: true,
+  //       },
+  //     },
+  //     order: { lessons: { order: 'ASC' } },
+  //   });
+
+  //   if (!course) {
+  //     throw new NotFoundException('Course not found');
+  //   }
+
+  //   return course;
+  // }
 
   create(dto: CreateCourseDto, instructor: User) {
     const course = this.coursesRepository.create({

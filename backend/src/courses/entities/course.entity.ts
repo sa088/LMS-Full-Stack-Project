@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CourseLevel } from '../../common/enums/course-level.enum.js';
 import type { User } from '../../users/entities/user.entity.js';
 import type { Lesson } from '../../lessons/entities/lesson.entity.js';
 import type { Enrollment } from '../../enrollments/entities/enrollment.entity.js';
@@ -22,6 +23,15 @@ export class Course {
 
   @Column({ type: 'text' })
   description: string;
+
+  @Column({ nullable: true })
+  imageUrl?: string;
+
+  @Column({ nullable: true })
+  category?: string;
+
+  @Column({ type: 'text', nullable: true })
+  level?: CourseLevel;
 
   @Column()
   instructorId: string;

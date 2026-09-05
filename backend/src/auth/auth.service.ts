@@ -31,7 +31,7 @@ export class AuthService {
       email: dto.email,
       name: dto.name,
       password: await bcrypt.hash(dto.password, 10),
-      role: dto.role ?? Role.STUDENT,
+      role: Role.STUDENT,
     });
 
     const saved = await this.usersRepository.save(user);

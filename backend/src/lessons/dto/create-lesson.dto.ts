@@ -17,6 +17,15 @@ export class CreateLessonDto {
   @IsInt()
   @Min(0)
   order?: number;
+
+  @ApiPropertyOptional({
+    example: 12,
+    description: 'Estimated minutes to complete this lesson',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  durationMinutes?: number;
 }
 
 export class UpdateLessonDto extends PartialType(CreateLessonDto) {}

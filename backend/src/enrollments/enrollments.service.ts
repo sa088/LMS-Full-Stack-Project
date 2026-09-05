@@ -46,18 +46,6 @@ export class EnrollmentsService {
     return this.enrollmentsRepository.find({
       where: { studentId },
       relations: ['course', 'course.instructor', 'course.lessons'],
-      select: {
-        course: {
-          instructor: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-      },
       order: { enrolledAt: 'DESC' },
     });
   }
@@ -68,25 +56,63 @@ export class EnrollmentsService {
     const isAdmin = user.role === Role.ADMIN;
 
     if (!isOwner && !isAdmin) {
-      throw new ForbiddenException('You cannot view enrollments for this course');
+      throw new ForbiddenException(
+        'You cannot view enrollments for this course',
+      );
     }
 
     return this.enrollmentsRepository.find({
       where: { courseId },
       relations: ['student'],
-      select: {
-        student: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
       order: { enrolledAt: 'DESC' },
     });
   }
+
+  // findMyEnrollments(studentId: string) {
+  //   return this.enrollmentsRepository.find({
+  //     where: { studentId },
+  //     relations: ['course', 'course.instructor', 'course.lessons'],
+  //     select: {
+  //       course: {
+  //         instructor: {
+  //           id: true,
+  //           email: true,
+  //           name: true,
+  //           role: true,
+  //           createdAt: true,
+  //           updatedAt: true,
+  //         },
+  //       },
+  //     },
+  //     order: { enrolledAt: 'DESC' },
+  //   });
+  // }
+
+  // async findCourseEnrollments(courseId: string, user: User) {
+  //   const course = await this.coursesService.findOne(courseId);
+  //   const isOwner = course.instructorId === user.id;
+  //   const isAdmin = user.role === Role.ADMIN;
+
+  //   if (!isOwner && !isAdmin) {
+  //     throw new ForbiddenException('You cannot view enrollments for this course');
+  //   }
+
+  //   return this.enrollmentsRepository.find({
+  //     where: { courseId },
+  //     relations: ['student'],
+  //     select: {
+  //       student: {
+  //         id: true,
+  //         email: true,
+  //         name: true,
+  //         role: true,
+  //         createdAt: true,
+  //         updatedAt: true,
+  //       },
+  //     },
+  //     order: { enrolledAt: 'DESC' },
+  //   });
+  // }
 
   async unenroll(courseId: string, student: User) {
     const enrollment = await this.enrollmentsRepository.findOne({
