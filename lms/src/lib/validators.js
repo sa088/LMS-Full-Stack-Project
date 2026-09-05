@@ -20,3 +20,22 @@ export const profileSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
   bio: z.string().max(500, "Bio must be under 500 characters").optional(),
 });
+
+export const courseSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  category: z.string().optional().or(z.literal("")),
+  level: z
+    .enum(["beginner", "intermediate", "advanced"])
+    .optional()
+    .or(z.literal("")),
+});
+
+export const lessonSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  content: z.string().min(10, "Content must be at least 10 characters"),
+  durationMinutes: z
+    .union([z.coerce.number().int().min(1), z.literal("")])
+    .optional(),
+});

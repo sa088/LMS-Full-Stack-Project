@@ -33,8 +33,21 @@ export function useUnenroll() {
   });
 }
 
-// Given a courseId, tells you if the current user is already enrolled.
+// Small helper: given a courseId, tells you if the current user is
+// already enrolled. Built on top of useEnrollments so it shares the cache.
 export function useIsEnrolled(courseId) {
   const { data: enrollments } = useEnrollments();
   return Boolean(enrollments?.some((e) => e.courseId === courseId));
+}
+
+// Instructor/admin only: list students enrolled in a specific course.
+export function useCourseEnrollments(courseId) {
+  return useQuery({
+    queryKey: ["courses", courseId, "enrollments"],
+    queryFn: async () => {
+      const { data } = await api.get(`/courses/${courseId}/enrollments`);
+      return data;
+    },
+    enabled: Boolean(courseId),
+  });
 }

@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Badge } from "../components/ui/Badge";
 import { Skeleton } from "../components/ui/Skeleton";
 import { useCourses } from "../hooks/useCourses";
+
+const levelVariant = {
+  beginner: "green",
+  intermediate: "indigo",
+  advanced: "red",
+};
 
 function CourseCardSkeleton() {
   return (
@@ -19,26 +26,28 @@ function CourseCardSkeleton() {
 export default function Courses() {
   const { data: courses, isLoading, isError, refetch } = useCourses();
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [category, setCategory] = useState("all");
+  const [level, setLevel] = useState("all");
+
+  const categories = useMemo(
+    () => [...new Set((courses ?? []).map((c) => c.category).filter(Boolean))],
+    [courses],
+  );
 
   const filtered = useMemo(() => {
     if (!courses) return [];
+    const q = search.toLowerCase();
 
-    const bySearch = courses.filter((course) => {
-      const q = search.toLowerCase();
-      return (
+    return courses.filter((course) => {
+      const matchesSearch =
         course.title.toLowerCase().includes(q) ||
-        course.description.toLowerCase().includes(q)
-      );
+        course.description.toLowerCase().includes(q);
+      const matchesCategory =
+        category === "all" || course.category === category;
+      const matchesLevel = level === "all" || course.level === level;
+      return matchesSearch && matchesCategory && matchesLevel;
     });
-
-    return [...bySearch].sort((a, b) => {
-      if (sort === "title") return a.title.localeCompare(b.title);
-      if (sort === "lessons")
-        return (b.lessons?.length ?? 0) - (a.lessons?.length ?? 0);
-      return new Date(b.createdAt) - new Date(a.createdAt); // newest
-    });
-  }, [courses, search, sort]);
+  }, [courses, search, category, level]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -49,7 +58,6 @@ export default function Courses() {
         </p>
       </div>
 
-      {/* Filters */}
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <div className="flex-1">
           <input
@@ -61,17 +69,29 @@ export default function Courses() {
           />
         </div>
         <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
           className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
         >
-          <option value="newest">Newest</option>
-          <option value="title">Title A–Z</option>
-          <option value="lessons">Most lessons</option>
+          <option value="all">All Categories</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        >
+          <option value="all">All Levels</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
         </select>
       </div>
 
-      {/* Loading state */}
       {isLoading && (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -80,7 +100,6 @@ export default function Courses() {
         </div>
       )}
 
-      {/* Error state */}
       {isError && !isLoading && (
         <div className="mt-10 rounded-xl border border-red-200 bg-red-50 p-8 text-center">
           <p className="text-sm font-medium text-red-700">
@@ -96,14 +115,12 @@ export default function Courses() {
         </div>
       )}
 
-      {/* Empty state */}
       {!isLoading && !isError && filtered.length === 0 && (
         <div className="mt-10 rounded-xl border border-slate-200 bg-white p-12 text-center">
           <p className="text-slate-500">No courses match your search.</p>
         </div>
       )}
 
-      {/* Course Grid */}
       {!isLoading && !isError && filtered.length > 0 && (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
@@ -112,15 +129,32 @@ export default function Courses() {
               to={`/courses/${course.id}`}
               className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg"
             >
-              <div className="flex h-44 items-center justify-center bg-linear-to-br from-indigo-100 to-purple-100">
-                <span className="text-4xl font-bold text-indigo-300">
-                  {course.title[0]}
-                </span>
-              </div>
+              {course.imageUrl ? (
+                <img
+                  src={course.imageUrl}
+                  alt={course.title}
+                  className="h-44 w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="flex h-44 items-center justify-center bg-linear-to-br from-indigo-100 to-purple-100">
+                  <span className="text-4xl font-bold text-indigo-300">
+                    {course.title[0]}
+                  </span>
+                </div>
+              )}
               <div className="p-5">
-                <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
-                  {course.lessons?.length ?? 0} lessons
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {course.category && (
+                    <Badge variant="indigo">{course.category}</Badge>
+                  )}
+                  {course.level && (
+                    <Badge variant={levelVariant[course.level]}>
+                      {course.level}
+                    </Badge>
+                  )}
+                  <Badge>{course.lessons?.length ?? 0} lessons</Badge>
+                </div>
                 <h3 className="mt-2 text-lg font-semibold text-slate-900 group-hover:text-indigo-600">
                   {course.title}
                 </h3>

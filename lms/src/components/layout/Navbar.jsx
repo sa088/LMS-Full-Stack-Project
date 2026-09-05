@@ -35,18 +35,44 @@ export default function Navbar() {
           >
             Courses
           </Link>
-          <Link
-            to="/dashboard"
-            className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/my-courses"
-            className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
-          >
-            My Courses
-          </Link>
+
+          {isAuthenticated && user?.role === "student" && (
+            <>
+              <Link
+                to="/dashboard"
+                className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/my-courses"
+                className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+              >
+                My Courses
+              </Link>
+            </>
+          )}
+
+          {isAuthenticated &&
+            (user?.role === "instructor" || user?.role === "admin") && (
+              <Link
+                to="/instructor/dashboard"
+                className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+              >
+                {user.role === "admin"
+                  ? "Manage Courses"
+                  : "Instructor Dashboard"}
+              </Link>
+            )}
+
+          {isAuthenticated && user?.role === "admin" && (
+            <Link
+              to="/admin"
+              className="text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+            >
+              Admin Panel
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
